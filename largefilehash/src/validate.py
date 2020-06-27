@@ -8,4 +8,4 @@ def validate_path(path, path_provider=PathProvider()):
 
 def validate_thread_count(number_of_threads):
     if number_of_threads <= 0 or number_of_threads > 12:
-        raise Exception(f'Number of threads must be greater than or equal to 0 and less than 12')
+        raise Exception(f'Number of threads must be greater than 0 and less than 12')

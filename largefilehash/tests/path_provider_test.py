@@ -1,6 +1,6 @@
 import unittest
 import os
-from ..src import default_path_provider
+from ..src import PathProvider
 
 
 class PathProviderTest(unittest.TestCase):
@@ -9,7 +9,7 @@ class PathProviderTest(unittest.TestCase):
         path = './largefilehash/tests/data/mock_file.txt'
         expected = os.path.getsize(path)
 
-        actual = default_path_provider.get_file_size_bytes(path)
+        actual = PathProvider().get_file_size_bytes(path)
 
         self.assertEqual(expected, actual)
 

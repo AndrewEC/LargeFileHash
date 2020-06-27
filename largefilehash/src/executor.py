@@ -11,6 +11,7 @@ class FileHashTask():
         self._end = end
         self._path = path
         self._path_provider = path_provider
+        self._iterations_made = 0
 
     def execute(self, executor, index):
         file_handle = self._prepare(executor)
@@ -29,25 +30,37 @@ class FileHashTask():
         self._cleanup(file_handle)
 
     def _do_execute(self, executor, file_handle):
+        iterations_made = 0
         bytes_read = 0
+
         next_read = self._calculate_next(bytes_read)
         hasher = hashlib.sha512()
         file_handle.seek(self._start, 0)
         bytes = file_handle.read(next_read)
-        while bytes != b'' and not executor.has_failed():
+
+        while bytes != b'':
             hasher.update(bytes)
-            executor.on_progress_made()
+            iterations_made = iterations_made + 1
+            if self._can_update_progress(iterations_made):
+                if executor.has_failed():
+                    break
+                executor.on_progress_made()
+
             bytes_read = bytes_read + len(bytes)
             next_read = self._calculate_next(bytes_read)
             if next_read <= 0:
                 break
             bytes = file_handle.read(next_read)
+
         return hasher.digest()
+
+    def _can_update_progress(self, iterations_made):
+        return iterations_made % Calculator.iterations_between_feedback == 0
 
     def _calculate_next(self, read):
         remaining = (self._end - self._start) - read
-        if remaining > Calculator.bytes_per_read:
-            return Calculator.bytes_per_read
+        if remaining > Calculator.max_bytes_per_read:
+            return Calculator.max_bytes_per_read
         return remaining
 
     def _prepare(self, executor):
@@ -68,7 +81,7 @@ class TaskExecutor():
 
     progress_message = 'Hashing file...'
 
-    def __init__(self, logger, thread_provider=TaskThreadProvider()):
+    def __init__(self, thread_provider=TaskThreadProvider()):
         self._thread_provider = thread_provider
         self._continue_condition = threading.Condition()
 
@@ -84,9 +97,10 @@ class TaskExecutor():
         self._hashes = None
 
         self._logger_lock = threading.Lock()
-        self._logger = logger
+        self._logger = None
 
-    def execute_all_tasks(self, tasks):
+    def execute_all_tasks(self, logger, tasks):
+        self._logger = logger
         task_count = len(tasks)
         self._task_threads = [self._thread_provider.provide_thread(tasks[i], self, i) for i in range(task_count)]
         self._hashes = [None for i in range(task_count)]
@@ -122,6 +136,8 @@ class TaskExecutor():
 
     def notify_failure(self, reason):
         with self._has_failed_lock:
+            if self._cancelled:
+                return
             self._cancelled = True
             self._cancel_reason = reason
             with self._continue_condition:

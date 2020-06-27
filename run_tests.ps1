@@ -1,5 +1,5 @@
 Write-Host("----- Running Unit Tests -----")
-coverage run --omit=./largefilehash/tests/* --branch --module largefilehash.tests._run_all
+coverage run --omit=./largefilehash/tests/* --source=largefilehash.src --branch --module largefilehash.tests._run_all
 if($LastExitCode -ne 0){
     Write-Host("'coverage run --omit=./largefilehash/tests/* --branch --module largefilehash.tests._run_all' failed with status: $LastExitCode")
     Exit

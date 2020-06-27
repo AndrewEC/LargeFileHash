@@ -20,9 +20,9 @@ class ExecutorTest(unittest.TestCase):
         self.mock_thread_provider.provide_thread.side_effect = provide_thread
 
         tasks = [MagicMock() for i in range(ExecutorTest.number_of_tasks)]
-        executor = TaskExecutor(self.mock_logger, self.mock_thread_provider)
+        executor = TaskExecutor(self.mock_thread_provider)
 
-        results = executor.execute_all_tasks(tasks)
+        results = executor.execute_all_tasks(self.mock_logger, tasks)
 
         self.assertEqual(ExecutorTest.number_of_tasks, len(results))
         for i in range(len(results)):
@@ -34,15 +34,16 @@ class ExecutorTest(unittest.TestCase):
     def test_execute_tasks_with_error_in_first_task(self):
         self.mock_thread_provider.provide_thread.side_effect = provide_failing_thread
         tasks = [MagicMock()]
-        executor = TaskExecutor(self.mock_logger, self.mock_thread_provider)
+        executor = TaskExecutor(self.mock_thread_provider)
 
         with self.assertRaises(Exception) as context:
-            executor.execute_all_tasks(tasks)
+            executor.execute_all_tasks(self.mock_logger, tasks)
 
         self.assertEqual(FailingMockThread.failure_message, str(context.exception))
 
     def test_on_progress_made(self):
-        executor = TaskExecutor(self.mock_logger, self.mock_thread_provider)
+        executor = TaskExecutor(self.mock_thread_provider)
+        executor._logger = self.mock_logger
 
         executor.on_progress_made()
 
@@ -50,7 +51,8 @@ class ExecutorTest(unittest.TestCase):
 
     def test_notify_failure(self):
         reason = 'failure reason'
-        executor = TaskExecutor(self.mock_logger, self.mock_thread_provider)
+        executor = TaskExecutor(self.mock_thread_provider)
+        executor._logger = self.mock_logger
 
         executor.notify_failure(reason)
 
