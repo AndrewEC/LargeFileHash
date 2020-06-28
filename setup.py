@@ -11,7 +11,7 @@ if __name__ == '__main__':
         packages=['largefilehash'],
         install_requires=[
             'coverage==5.0.3',
-            'cosmic_ray==6.1.0',
+            'mutmut==2.0.0',
             'virtualenv==16.7.9',
             'click==7.0'
         ]
