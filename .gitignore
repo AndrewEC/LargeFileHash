@@ -3,3 +3,5 @@ cosmic-ray-reports
 .coverage
 __pycache__
 .vscode
+.mutmut-cache
+html

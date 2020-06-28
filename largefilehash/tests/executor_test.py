@@ -47,7 +47,7 @@ class ExecutorTest(unittest.TestCase):
 
         executor.on_progress_made()
 
-        self.mock_logger.tick_progress.assert_called_once_with(TaskExecutor.progress_message)
+        self.mock_logger.tick_progress.assert_called_once_with('Hashing file...')
 
     def test_notify_failure(self):
         reason = 'failure reason'

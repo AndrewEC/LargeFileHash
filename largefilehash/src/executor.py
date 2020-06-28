@@ -17,7 +17,6 @@ class FileHashTask():
         if not file_handle:
             return
 
-        result = None
         try:
             result = self._do_execute(executor, file_handle)
         except Exception as e:
@@ -51,7 +50,7 @@ class FileHashTask():
             bytes_read = bytes_read + len(bytes)
             next_read = self._calculate_next(bytes_read)
             if next_read <= 0:
-                break
+                break  # pragma: no mutate
             bytes = file_handle.read(next_read)
 
         return hasher.digest()
@@ -87,16 +86,16 @@ class TaskExecutor():
         self._thread_provider = thread_provider
         self._continue_condition = threading.Condition()
 
-        self._is_complete = False
         self._completed = 0
+        self._is_complete = False
         self._checking_lock = threading.Lock()
 
         self._cancelled = False
-        self._cancel_reason = ''
+        self._cancel_reason = ''  # pragma: no mutate
         self._has_failed_lock = threading.Lock()
 
-        self._task_threads = None
-        self._hashes = None
+        self._task_threads = None  # pragma: no mutate
+        self._hashes = None  # pragma: no mutate
 
         self._logger_lock = threading.Lock()
         self._logger = None
@@ -129,6 +128,8 @@ class TaskExecutor():
 
     def checkin_hash(self, hash, index):
         with self._checking_lock:
+            if self._is_complete:
+                return
             self._hashes[index] = hash
             self._completed = self._completed + 1
             if self._completed == len(self._task_threads):
