@@ -11,7 +11,6 @@ class FileHashTask():
         self._end = end
         self._path = path
         self._path_provider = path_provider
-        self._iterations_made = 0
 
     def execute(self, executor, index):
         file_handle = self._prepare(executor)
@@ -24,6 +23,9 @@ class FileHashTask():
         except Exception as e:
             self._cleanup(file_handle)
             executor.notify_failure(f'Failed to hash part of file: {str(e)}')
+            return
+
+        if result is None:
             return
 
         executor.checkin_hash(result, index)
@@ -43,7 +45,7 @@ class FileHashTask():
             iterations_made = iterations_made + 1
             if self._can_update_progress(iterations_made):
                 if executor.has_failed():
-                    break
+                    return None
                 executor.on_progress_made()
 
             bytes_read = bytes_read + len(bytes)

@@ -1,0 +1,1 @@
+get-process python | foreach-object { stop-process -Id $_.Id }

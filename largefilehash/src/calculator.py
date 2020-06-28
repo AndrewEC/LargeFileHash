@@ -15,4 +15,4 @@ class Calculator():
         return math.ceil(file_size_bytes / number_of_threads)
 
     def calculate_total_number_of_reads_required(self, bytes_per_thread, number_of_threads):
-        return (math.ceil(bytes_per_thread / Calculator.max_bytes_per_read) * number_of_threads) / Calculator.iterations_between_feedback
+        return math.ceil((math.ceil(bytes_per_thread / Calculator.max_bytes_per_read) * number_of_threads) / Calculator.iterations_between_feedback)
