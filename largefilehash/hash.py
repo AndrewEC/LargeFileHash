@@ -9,42 +9,54 @@ from .src.calculator import Calculator
 from .src.logger import Logger
 
 
-def hash_file(number_of_threads, path, executor, calculator=Calculator()):
-    bytes_per_thread = calculator.calculate_bytes_per_thread(path, number_of_threads)
-    reads_required = calculator.calculate_total_number_of_reads_required(bytes_per_thread, number_of_threads)
-    logger = Logger(reads_required)
+class Launcher():
 
-    task_list = _create_task_list(bytes_per_thread, number_of_threads, path)
-    result_list = _execute(task_list, logger, executor)
-    if result_list is None:
-        return
+    def __init__(self, number_of_threads, path, calculator=Calculator()):
+        self._number_of_threads = number_of_threads
+        self._path = path
+        self._calculator = calculator
+        self._bytes_per_thread = calculator.calculate_bytes_per_thread(path, number_of_threads)
+        self._reads_required = calculator.calculate_total_number_of_reads_required(self._bytes_per_thread, self._number_of_threads)
+        self._logger = Logger(self._reads_required)
+        self._executor = TaskExecutor(self._logger)
+        self._task_list = self._create_task_list()
 
-    pseudo_hash = _create_pseudo_hash(result_list)
-    logger.complete(pseudo_hash)
+    @property
+    def executor(self):
+        return self._executor
+
+    def _create_task_list(self):
+        task_list = []
+        for i in range(self._number_of_threads):
+            start = self._bytes_per_thread * i
+            end = start + self._bytes_per_thread
+            task_list.append(FileHashTask(start, end, self._path))
+        return task_list
+
+    def hash_file(self):
+        result_list = self._execute()
+        if result_list is None:
+            return
+
+        pseudo_hash = self._create_pseudo_hash(result_list)
+        self._logger.complete(pseudo_hash)
+
+    def _execute(self):
+        try:
+            return self._executor.execute_all_tasks(self._task_list)
+        except Exception as e:
+            self._logger.complete(str(e))
+            return None
+
+    def _create_pseudo_hash(self, result_list):
+        hasher = hashlib.sha512()
+        for result in result_list:
+            hasher.update(result)
+        return hasher.hexdigest()
 
 
-def _create_pseudo_hash(result_list):
-    hasher = hashlib.sha512()
-    for result in result_list:
-        hasher.update(result)
-    return hasher.hexdigest()
-
-
-def _execute(task_list, logger, executor):
-    try:
-        return executor.execute_all_tasks(logger, task_list)
-    except Exception as e:
-        logger.complete(str(e))
-        return None
-
-
-def _create_task_list(bytes_per_thread, number_of_threads, path):
-    task_list = []
-    for i in range(number_of_threads):
-        start = bytes_per_thread * i
-        end = start + bytes_per_thread
-        task_list.append(FileHashTask(start, end, path))
-    return task_list
+def execute(launcher):
+    launcher.hash_file()
 
 
 @click.command()
@@ -60,9 +72,10 @@ def main(path, threads):
     except Exception as e:
         print(str(e))
 
-    executor = TaskExecutor()
+    launcher = Launcher(threads, path)
+    executor = launcher.executor
     try:
-        thread = threading.Thread(target=hash_file, args=(threads, path, executor))
+        thread = threading.Thread(target=execute, args=(launcher,))
         thread.start()
         while thread.is_alive():
             thread.join(0.25)

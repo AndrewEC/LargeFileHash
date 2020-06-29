@@ -82,7 +82,7 @@ class TaskExecutor():
 
     progress_message = 'Hashing file...'
 
-    def __init__(self, thread_provider=TaskThreadProvider()):
+    def __init__(self, logger, thread_provider=TaskThreadProvider()):
         self._thread_provider = thread_provider
         self._continue_condition = threading.Condition()
 
@@ -98,10 +98,9 @@ class TaskExecutor():
         self._hashes = None  # pragma: no mutate
 
         self._logger_lock = threading.Lock()
-        self._logger = None
-
-    def execute_all_tasks(self, logger, tasks):
         self._logger = logger
+
+    def execute_all_tasks(self, tasks):
         task_count = len(tasks)
         self._task_threads = [self._thread_provider.provide_thread(tasks[i], self, i) for i in range(task_count)]
         self._hashes = [None for i in range(task_count)]
