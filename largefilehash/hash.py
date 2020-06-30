@@ -1,5 +1,6 @@
 import threading
 import hashlib
+from typing import List
 
 import click
 
@@ -8,10 +9,12 @@ from .src.executor import TaskExecutor, FileHashTask
 from .src.calculator import Calculator
 from .src.logger import Logger
 
+TaskList = List[FileHashTask]
+
 
 class Launcher():
 
-    def __init__(self, number_of_threads, path, calculator=Calculator()):
+    def __init__(self, number_of_threads: int, path: str, calculator=Calculator()):
         self._number_of_threads = number_of_threads
         self._path = path
         self._calculator = calculator
@@ -22,10 +25,10 @@ class Launcher():
         self._task_list = self._create_task_list()
 
     @property
-    def executor(self):
+    def executor(self) -> TaskExecutor:
         return self._executor
 
-    def _create_task_list(self):
+    def _create_task_list(self) -> TaskList:
         task_list = []
         for i in range(self._number_of_threads):
             start = self._bytes_per_thread * i
@@ -41,30 +44,30 @@ class Launcher():
         pseudo_hash = self._create_pseudo_hash(result_list)
         self._logger.complete(pseudo_hash)
 
-    def _execute(self):
+    def _execute(self) -> List:
         try:
             return self._executor.execute_all_tasks(self._task_list)
         except Exception as e:
             self._logger.complete(str(e))
             return None
 
-    def _create_pseudo_hash(self, result_list):
+    def _create_pseudo_hash(self, result_list: List[str]):
         hasher = hashlib.sha512()
         for result in result_list:
             hasher.update(result)
         return hasher.hexdigest()
 
 
-def execute(launcher):
+def execute(launcher: Launcher):
     launcher.hash_file()
 
 
 @click.command()
 @click.argument('path')
 @click.option('--threads', default=1, help='The number of threads to use to hash the file')
-def main(path, threads):
+def main(path: str, threads: int):
     '''
-    path : str : the absolute or relative path to the file to hash
+    path: str : the absolute or relative path to the file to hash
     '''
     try:
         validate_path(path)
@@ -77,7 +80,7 @@ def main(path, threads):
     try:
         thread = threading.Thread(target=execute, args=(launcher,))
         thread.start()
-        while thread.is_alive():
+        while thread.is_alive():  # keeps the main thread from existing
             thread.join(0.25)
     except KeyboardInterrupt:
         executor.notify_failure('User interrupted process')

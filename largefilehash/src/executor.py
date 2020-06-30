@@ -1,7 +1,10 @@
 from .providers import TaskThreadProvider, PathProvider
 from .calculator import Calculator
+from .logger import Logger
+
 import threading
 import hashlib
+from typing import IO, List
 
 
 class FileHashTask():
@@ -12,7 +15,7 @@ class FileHashTask():
         self._path = path
         self._path_provider = path_provider
 
-    def execute(self, executor, index):
+    def execute(self, executor, index: int):
         file_handle = self._prepare(executor)
         if not file_handle:
             return
@@ -30,7 +33,7 @@ class FileHashTask():
         executor.checkin_hash(result, index)
         self._cleanup(file_handle)
 
-    def _do_execute(self, executor, file_handle):
+    def _do_execute(self, executor, file_handle: IO):
         iterations_made = 0
         bytes_read = 0
 
@@ -55,16 +58,16 @@ class FileHashTask():
 
         return hasher.digest()
 
-    def _can_update_progress(self, iterations_made):
+    def _can_update_progress(self, iterations_made: int) -> bool:
         return iterations_made % Calculator.iterations_between_feedback == 0
 
-    def _calculate_next(self, read):
+    def _calculate_next(self, read: int) -> int:
         remaining = (self._end - self._start) - read
         if remaining > Calculator.max_bytes_per_read:
             return Calculator.max_bytes_per_read
         return remaining
 
-    def _prepare(self, executor):
+    def _prepare(self, executor) -> IO:
         try:
             return self._path_provider.open_file_for_binary_read(self._path)
         except Exception as e:
@@ -78,11 +81,14 @@ class FileHashTask():
             pass
 
 
+TaskList = List[FileHashTask]
+
+
 class TaskExecutor():
 
     progress_message = 'Hashing file...'
 
-    def __init__(self, logger, thread_provider=TaskThreadProvider()):
+    def __init__(self, logger: Logger, thread_provider=TaskThreadProvider()):
         self._thread_provider = thread_provider
         self._continue_condition = threading.Condition()
 
@@ -100,7 +106,7 @@ class TaskExecutor():
         self._logger_lock = threading.Lock()
         self._logger = logger
 
-    def execute_all_tasks(self, tasks):
+    def execute_all_tasks(self, tasks: TaskList):
         task_count = len(tasks)
         self._task_threads = [self._thread_provider.provide_thread(tasks[i], self, i) for i in range(task_count)]
         self._hashes = [None for i in range(task_count)]
@@ -121,11 +127,11 @@ class TaskExecutor():
         for thread in self._task_threads:
             thread.join()
 
-    def has_failed(self):
+    def has_failed(self) -> bool:
         with self._has_failed_lock:
             return self._cancelled
 
-    def checkin_hash(self, hash, index):
+    def checkin_hash(self, hash: str, index: int):
         with self._checking_lock:
             if self._is_complete:
                 return
@@ -136,7 +142,7 @@ class TaskExecutor():
                 with self._continue_condition:
                     self._continue_condition.notifyAll()
 
-    def notify_failure(self, reason):
+    def notify_failure(self, reason: str):
         with self._has_failed_lock:
             if self._cancelled:
                 return
