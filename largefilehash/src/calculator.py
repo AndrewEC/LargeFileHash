@@ -5,7 +5,7 @@ from .providers import PathProvider
 class Calculator():
 
     max_bytes_per_read = 4096
-    iterations_between_feedback = 50
+    iterations_between_feedback = 100
 
     def __init__(self, path_provider=PathProvider()):
         self._path_provider = path_provider

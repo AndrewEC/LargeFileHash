@@ -19,8 +19,8 @@ class CalculatorTest(unittest.TestCase):
 
     def test_calculate_number_of_reads(self):
         arguments = [
-            (4096 * 1000, 10, 200),
-            (4096 * 1000, 3, 60)
+            (4096 * 1000, 10, 100),
+            (4096 * 1000, 3, 30)
         ]
 
         calculator = Calculator()
