@@ -80,7 +80,7 @@ def main(path: str, threads: int):
     try:
         thread = threading.Thread(target=execute, args=(launcher,))
         thread.start()
-        while thread.is_alive():  # keeps the main thread from existing
+        while thread.is_alive():  # keeps the main thread from exiting to catch user interrupts
             thread.join(0.25)
     except KeyboardInterrupt:
         executor.notify_failure('User interrupted process')

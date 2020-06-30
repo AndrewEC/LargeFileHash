@@ -24,6 +24,8 @@ class Logger():
 
     def complete(self, to_print: str):
         message = self._pad_message_with_spaces(to_print)
+        self._last_string_length = 0
+        self._current_progress = self._max_progress
         self._printer.print(message)
 
     def _calculate_progress_percentage(self) -> float:

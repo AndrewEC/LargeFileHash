@@ -28,7 +28,7 @@ class PrintProvider():
 
 class TaskThread(threading.Thread):
 
-    def __init__(self, task, executor, index):
+    def __init__(self, task, executor, index: int):
         super().__init__()
         self._task = task
         self._executor = executor

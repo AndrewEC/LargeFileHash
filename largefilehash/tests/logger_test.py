@@ -40,6 +40,8 @@ class LoggerTest(unittest.TestCase):
         self.logger.complete(message)
 
         self.mock_printer.print.assert_called_once_with(message)
+        self.assertEqual(0, self.logger._last_string_length)
+        self.assertEqual(self.logger._max_progress, self.logger._current_progress)
 
 
 if __name__ == '__main__':

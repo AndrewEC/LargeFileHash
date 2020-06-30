@@ -81,7 +81,7 @@ class FileHashTask():
             pass
 
 
-TaskList = List[FileHashTask]
+TaskList = List[FileHashTask]  # pragma: no mutate
 
 
 class TaskExecutor():
