@@ -84,11 +84,11 @@ class FileHashTask():
 TaskList = List[FileHashTask]  # pragma: no mutate
 
 
-class TaskExecutor():
+class FileHashTaskExecutor():
 
     progress_message = 'Hashing file...'
 
-    def __init__(self, logger: Logger, thread_provider=TaskThreadProvider()):
+    def __init__(self, logger: Logger, tasks: TaskList, thread_provider=TaskThreadProvider()):
         self._thread_provider = thread_provider
         self._continue_condition = threading.Condition()
 
@@ -100,16 +100,16 @@ class TaskExecutor():
         self._cancel_reason = ''  # pragma: no mutate
         self._has_failed_lock = threading.Lock()
 
-        self._task_threads = None  # pragma: no mutate
-        self._hashes = None  # pragma: no mutate
+        self._task_threads = self._create_task_threads(tasks)
+        self._hashes = [None for i in range(len(tasks))]
 
         self._logger_lock = threading.Lock()
         self._logger = logger
 
-    def execute_all_tasks(self, tasks: TaskList):
-        task_count = len(tasks)
-        self._task_threads = [self._thread_provider.provide_thread(tasks[i], self, i) for i in range(task_count)]
-        self._hashes = [None for i in range(task_count)]
+    def _create_task_threads(self, tasks: TaskList) -> List:
+        return [self._thread_provider.provide_thread(tasks[i], self, i) for i in range(len(tasks))]
+
+    def execute_all_tasks(self):
         for thread in self._task_threads:
             thread.start()
 
@@ -153,4 +153,4 @@ class TaskExecutor():
 
     def on_progress_made(self):
         with self._logger_lock:
-            self._logger.tick_progress(TaskExecutor.progress_message)
+            self._logger.tick_progress(FileHashTaskExecutor.progress_message)
