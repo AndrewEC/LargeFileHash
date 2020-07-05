@@ -5,7 +5,7 @@ import math
 from ..src import FileHashTask, Calculator
 
 
-class ExecutorTaskTest(unittest.TestCase):
+class FileHashTaskTest(unittest.TestCase):
 
     def test_execute(self):
         path = 'testing'

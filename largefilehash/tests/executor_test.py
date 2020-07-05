@@ -57,7 +57,7 @@ class FileHashTaskExecutorTest(unittest.TestCase):
         executor.notify_failure(reason)
 
         self.assertTrue(executor.has_failed())
-        self.assertEqual(reason, executor._cancel_reason)
+        self.assertEqual(reason, executor._failure_manager.failure_reason())
 
 
 def provide_failing_thread(task, executor, index):
