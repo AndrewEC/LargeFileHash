@@ -31,7 +31,3 @@ class TaskThreadTest(unittest.TestCase):
         task_thread.join()
 
         mock_executor.notify_failure.assert_called_once_with(exception_message)
-
-
-if __name__ == '__main__':
-    unittest.main()

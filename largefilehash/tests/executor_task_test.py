@@ -57,7 +57,3 @@ class FileHashTaskTest(unittest.TestCase):
         task.execute(mock_executor, 1)
 
         mock_executor.notify_failure.assert_called_once_with(f'Failed to hash part of file: {message}')
-
-
-if __name__ == '__main__':
-    unittest.main()

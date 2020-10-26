@@ -28,7 +28,3 @@ class CalculatorTest(unittest.TestCase):
         for argument in arguments:
             with self.subTest():
                 self.assertEqual(argument[2], calculator.calculate_total_number_of_reads_required(argument[0], argument[1]))
-
-
-if __name__ == '__main__':
-    unittest.main()

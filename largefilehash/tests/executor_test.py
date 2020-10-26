@@ -93,7 +93,3 @@ class MockThread(threading.Thread):
         time.sleep(.25)
         self.start_called = True
         self.executor.checkin_hash(f'testing-{self.index}', self.index)
-
-
-if __name__ == '__main__':
-    unittest.main()

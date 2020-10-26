@@ -12,7 +12,3 @@ class PathProviderTest(unittest.TestCase):
         actual = PathProvider().get_file_size_bytes(path)
 
         self.assertEqual(expected, actual)
-
-
-if __name__ == '__main__':
-    unittest.main()

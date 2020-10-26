@@ -34,7 +34,3 @@ class ValidateTest(unittest.TestCase):
         for argument in valid_arguments:
             with self.subTest():
                 validate_thread_count(argument)
-
-
-if __name__ == '__main__':
-    unittest.main()
