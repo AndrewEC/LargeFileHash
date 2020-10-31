@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import MagicMock, Mock, call
 import math
 
-from ..src import FileHashTask, Calculator
+from ..app import FileHashTask, Calculator
 
 
 class FileHashTaskTest(unittest.TestCase):

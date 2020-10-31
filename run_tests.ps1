@@ -2,9 +2,9 @@
 # Make sure to not include the .py extension when specifying a value for the <test_file>
 
 Write-Host("----- Running Unit Tests -----")
-coverage run --omit=./largefilehash/tests/* --source=largefilehash.src --branch --module largefilehash.tests._run_all
+coverage run --omit=./largefilehash/tests/* --source=largefilehash.app --branch --module largefilehash.tests._run_all
 if($LastExitCode -ne 0){
-    Write-Host("'coverage run --omit=./largefilehash/tests/* --branch --module largefilehash.tests._run_all' failed with status: $LastExitCode")
+    Write-Host("'coverage run --omit=./largefilehash/tests/* --source=largefilehash.app --branch --module largefilehash.tests._run_all' failed with status: $LastExitCode")
     Exit
 }
 

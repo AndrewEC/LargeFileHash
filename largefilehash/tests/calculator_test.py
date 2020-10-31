@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, Mock
 
-from ..src import Calculator
+from ..app import Calculator
 
 
 class CalculatorTest(unittest.TestCase):

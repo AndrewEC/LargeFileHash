@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import MagicMock
-from ..src import TaskThread
+from ..app import TaskThread
 
 
 class TaskThreadTest(unittest.TestCase):

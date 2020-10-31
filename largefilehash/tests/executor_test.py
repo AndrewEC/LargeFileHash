@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, Mock, call
 import threading
 import time
 
-from ..src import FileHashTaskExecutor
+from ..app import FileHashTaskExecutor
 
 
 class FileHashTaskExecutorTest(unittest.TestCase):

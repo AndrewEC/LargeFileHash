@@ -4,10 +4,10 @@ from typing import List
 
 import click
 
-from .src.validate import validate_path, validate_thread_count
-from .src.executor import FileHashTaskExecutor, FileHashTask
-from .src.calculator import Calculator
-from .src.logger import Logger
+from .app.validate import validate_path, validate_thread_count
+from .app.executor import FileHashTaskExecutor, FileHashTask
+from .app.calculator import Calculator
+from .app.logger import Logger
 
 TaskList = List[FileHashTask]
 

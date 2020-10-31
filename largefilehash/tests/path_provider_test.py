@@ -1,6 +1,6 @@
 import unittest
 import os
-from ..src import PathProvider
+from ..app import PathProvider
 
 
 class PathProviderTest(unittest.TestCase):

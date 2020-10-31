@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import MagicMock
-from ..src import validate_path, validate_thread_count
+from ..app import validate_path, validate_thread_count
 
 
 class ValidateTest(unittest.TestCase):
